@@ -11,8 +11,8 @@ t1.speed(0)
 t1.shapesize(1.3)
 t1.color('red')
 while True:
-    m1 = (numinput('enter the mass of the first ball', 'input', default=10000000))
-    m2 = (numinput('enter the mass of the second ball', 'input', default=10000000))
+    m1 = (numinput('mass of the first ball', 'input', default=10000000))
+    m2 = (numinput('mass of the second ball', 'input', default=10000000))
     if int(m1) == m1 > 0 and int(m2) == m2 > 0:
         m1 = int(m1)
         m2 = int(m2)
