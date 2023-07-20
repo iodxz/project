@@ -9,7 +9,7 @@ t1.shape('circle')
 t1.penup()
 t1.speed(0)
 t1.shapesize(1.3)
-t1.color('red')
+t1.color('red') 
 while True:
     m1 = (numinput('mass of the first ball', 'input', default=10000000))
     m2 = (numinput('mass of the second ball', 'input', default=10000000))
@@ -59,14 +59,18 @@ def end(x01, y01, x02, y02):
     for q in range(100):
         shapesize(q+10)
     done()
+def none():
+    w.bgcolor('white')
+
 
 
 def go4(xv2, yv2):
     v2.goto(xv2, yv2)
     vx2 = (xv2 - t2.xcor()) / 50
     vy2 = (yv2 - t2.ycor()) / 50
+    onscreenclick(none)
     move(vx2, vy2, v[0], v[1])
-
+    
 
 def go3(xv1, yv1):
     v1.goto(xv1, yv1)
