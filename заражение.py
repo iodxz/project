@@ -1,90 +1,128 @@
-from turtle import *
-from random import *
+import random
 
+import pygame as pg
+import sys
 
-shape('square')
-screen = Screen()
-screen.setup(1920, 1080, 0, 0)
-start_x_wall = []
-start_y_wall = []
-end_x_wall = []
-end_y_wall = []
-healthy = []
-sick = []
-speed(11)
+sc = pg.display.set_mode((1000, 1000))
+sc.fill((255, 255, 255))
+pg.display.update()
+
+start_wall = []
+end_wall = []
 dead = []
-shapesize(0.2)
+healthy = []
+ill = []
 peoples = []
+GREEN = (0, 255, 0)
+RED = (255, 0, 0)
+
+counter = {} #FIXME
 
 
-def go():
-
-    sick.append(peoples[0])
-    sick[0].color('firebrick')
-    i = 0
-    while len(sick) != 0:
-
-        for move in range(len(peoples)):
-            x = randint(-10, 10)
-            y = randint(-10, 10)
-
-            #(bx - ax) * (py - ay) - (by - ay) * (px - ax)
-            #s1 = ((end_x_wall[p_and_w] - start_x_wall[p_and_w]) * (peoples[move].ycor() - start_y_wall[p_and_w]) - (end_y_wall[p_and_w] - start_y_wall[p_and_w]) * (peoples[move].xcor() - start_x_wall[p_and_w]))
-            #s2 = ((end_x_wall[p_and_w] - start_x_wall[p_and_w]) * (peoples[move].ycor() + y - start_y_wall[p_and_w]) - end_y_wall[p_and_w] - start_y_wall[p_and_w]) * (peoples[move].xcor() + x - start_x_wall[p_and_w]))
-            #print(s1, s2)
-            #for p_and_w in range(len(end_x_wall)):
-                #if s1 > 0 and s2 > 0 or s1 < 0 and s2 < 0:
-                    #peoples[move].goto(peoples[move].xcor() + x, peoples[move].ycor() + y)
-            #for ill in range(sick):
+class section:
+    def __init__(self, x1, y1):
+        self.x = i.pos[0]
+        self.y = i.pos[1]
 
 
+def move(i):
 
-        i += 1
+    step = 0
 
+    while True:
+        print(counter)
+        step += 1
+        for close in pg.event.get():
+            if close.type == pg.QUIT:
+                sys.exit()
+        sc.fill((255, 255, 255))
+        pg.time.delay(100)
+        for dot in range(len(start_wall)):
+            pg.draw.rect(sc, (178, 34, 34), (start_wall[dot], (7, 7)))
+            pg.draw.line(sc, (178, 34, 34), start_wall[dot], end_wall[dot], 5)
+        for go in range(len(peoples)):
+            ran_x = random.randint(-80, 80)
+            ran_y = random.randint(-80, 80)
+            x = peoples[go].x + ran_x
+            y = peoples[go].y + ran_y
 
-def people(people_x, people_y):
+            if peoples[go] in healthy:
+                pg.draw.circle(sc, GREEN, (x, y), 10)
+            if peoples[go] in ill:
+                pg.draw.circle(sc, RED, (x, y), 10)
+            for ills in range(len(ill)):
+                for dis in range(len(healthy) - 1, 0, -1):
 
-    t = Turtle()
-    t.color('dark green')
-    t.penup()
-    t.shape('circle')
-    t.speed(0)
-    t.shapesize(0.7)
-    t.goto(people_x, people_y)
-    t.speed(1)
-    peoples.append(t)
+                    r = ((healthy[dis].x - ill[ills].x) ** 2 + (healthy[dis].y - ill[ills].y) ** 2) ** 0.5
+                    print(r)
+                    if r < 100:
+                        r = 0
+                        probability_of_infection = random.randint(0, 1)
+                        counter[go] = healthy[dis]
+                        if probability_of_infection == 1:
+                            counter[step] = healthy[dis]
+                            ill.append(healthy[dis])
+                            healthy.pop(dis)
 
-    onkey(go, 'Return')
-    screen.listen()
-
-
-def build_wall():
-    if len(start_x_wall) != len(end_x_wall):
-        start_x_wall.pop(-1)
-        start_y_wall.pop(-1)
-    for w in range(len(start_x_wall)):
-        penup()
-        goto(start_x_wall[w], start_y_wall[w])
-        pendown()
-        goto(end_x_wall[w], end_y_wall[w])
-    onscreenclick(people)
-
-
-def wall(x_wall, y_wall):
-    penup()
-    goto(x_wall, y_wall)
-    stamp()
-
-    if len(start_x_wall) == len(end_x_wall):
-        start_x_wall.append(x_wall)
-        start_y_wall.append(y_wall)
-    else:
-        end_x_wall.append(x_wall)
-        end_y_wall.append(y_wall)
-
-    onkey(build_wall, 'Return')
-    screen.listen()
+        pg.display.update()
 
 
-onscreenclick(wall)
-done()
+def draw_peoples():
+    while True:
+        for people in pg.event.get():
+            if people.type == pg.QUIT:
+                sys.exit()
+            if people.type == pg.MOUSEBUTTONDOWN:
+                if people.button == 1:
+
+                    if len(ill) == 0:
+                        human = pg.draw.circle(sc, (255, 0, 0), (people.pos[0], people.pos[1]), 10)
+                        counter = {0: human}
+
+                        pg.display.update()
+                        ill.append(human)
+
+                        peoples.append(human)
+                    else:
+                        human = pg.draw.circle(sc, (0, 255, 0), (people.pos[0], people.pos[1]), 10)
+
+                        pg.display.update()
+                        healthy.append(human)
+                        peoples.append(human)
+            if people.type == pg.KEYDOWN:
+                if people.key == pg.K_SPACE:
+                    move(i)
+
+
+def wals():
+    if len(start_wall) > len(end_wall):
+        start_wall.pop(-1)
+    for build_walls in range(len(end_wall)):
+        pg.draw.line(sc, (178, 34, 34), start_wall[build_walls], end_wall[build_walls], 5)
+        pg.display.update()
+    draw_peoples()
+
+
+def dots(i):
+    if i.type == pg.MOUSEBUTTONDOWN:
+        if i.button == 1:
+
+            pg.draw.rect(sc, (178, 34, 34), (i.pos[0] - 2.5, i.pos[1] - 2.5, 7, 7))
+
+            if len(start_wall) == len(end_wall):
+                start_wall.append(i.pos)
+            else:
+                end_wall.append(i.pos)
+
+            pg.display.update()
+    if i.type == pg.KEYDOWN:
+        if i.key == pg.K_SPACE:
+            wals()
+
+
+while True:
+    for i in pg.event.get():
+        if i.type == pg.QUIT:
+            sys.exit()
+        pg.time.delay(1)
+        dots(i)
