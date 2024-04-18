@@ -1,0 +1,115 @@
+import pygame
+import random
+import math
+
+# Инициализация Pygame
+pygame.init()
+
+# Определение цветов
+WHITE = (255, 255, 255)
+RED = (255, 0, 0)
+GREEN = (0, 255, 0)
+BLACK = (0, 0, 0)
+
+# Параметры окна
+WIDTH, HEIGHT = 800, 600
+win = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("Симуляция заражения")
+
+# Персонажи и стены
+infected = False
+people = []
+walls = []
+tik = []
+# Класс для персонажей
+class Person:
+    def __init__(self, x, y, infected=False):
+        self.x = x
+        self.y = y
+        self.color = RED if infected else GREEN
+        self.vel = 10
+
+    def move(self, dx, dy):
+        if self.check_collision(dx, dy):
+            return
+        self.x += dx
+        self.y += dy
+
+    def check_collision(self, dx, dy):
+        new_rect = pygame.Rect(self.x + dx, self.y + dy, 10, 10)
+        for wall in walls:
+            if new_rect.colliderect(wall):
+                return True
+        return False
+
+    def draw(self):
+        pygame.draw.circle(win, self.color, (self.x, self.y), 5)
+
+# Функция для вычисления расстояния между двумя точками
+def distance(p1, p2):
+    return math.sqrt((p2[0] - p1[0])**2 + (p2[1] - p1[1])**2)
+
+# Функция для заражения персонажей на близком расстоянии
+def infect(people, walls):
+
+
+    for p1 in people:
+        for p2 in people:
+            if p1 != p2 and p2.color == GREEN:  # Проверяем только здоровых персонажей
+                # Создаем отрезок между персонажами
+                line = pygame.Rect(p1.x, p1.y, p2.x - p1.x, p2.y - p1.y)
+                # Проверяем пересечение этого отрезка со всеми стенами
+                for wall in walls:
+                    wall_rect = pygame.Rect(wall)
+                    if line.colliderect(wall_rect):
+                        break
+                else:  # Этот блок выполнится, если стена не пересекает линию между персонажами
+                    if distance((p1.x, p1.y), (p2.x, p2.y)) < 40 and random.random() < 0.5:
+                        p2.color = RED
+
+
+
+
+# Основной цикл программы
+clock = pygame.time.Clock()
+running = True
+main_i = 0
+while running:
+    win.fill(WHITE)
+
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+        # Расставляем персонажей по клику ПКМ
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 3:
+            x, y = pygame.mouse.get_pos()
+            tik.append(main_i)
+            print(tik)
+            if len(people) == 0:
+                people.append(Person(x, y, True))
+            else:
+                people.append(Person(x, y))
+
+    infect(people, walls)
+
+    # Движение персонажей
+    for person in people:
+        dx, dy = random.randint(-person.vel, person.vel), random.randint(-person.vel, person.vel)
+        person.move(dx, dy)
+        pygame.time.wait(0)
+        person.draw()
+        print(main_i)
+        main_i+=1
+
+
+
+    if pygame.mouse.get_pressed()[0]:
+        x, y = pygame.mouse.get_pos()
+        walls.append(pygame.Rect(x-5, y-5, 10, 10))
+    for wall in walls:
+            pygame.draw.rect(win, BLACK, wall)
+
+    pygame.display.update()
+
+    clock.tick(2)
+pygame.quit()
