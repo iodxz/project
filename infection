@@ -110,48 +110,41 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-        # Расставляем персонажей по клику ПКМ
+    # Расставляем персонажей по клику ПКМ
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 3:
             x, y = pygame.mouse.get_pos()
             tik.append(main_i)
-            print(tik)
             if len(people) == 0:
                 people.append(Person(x, y, True))
             else:
                 people.append(Person(x, y))
+    if running:  # Проверяем, закрыто ли окно
+        win.fill(WHITE)
+    infect(people, walls)
 
-        if running:  # Проверяем, закрыто ли окно
-            win.fill(WHITE)
-
-            infect(people, walls)
-
-            # Движение персонажей
-        for person in people:
-            if person.is_dead != True:
-                # Присваиваем случайное (плавное) перемещение
-                dx = random.uniform(-0.7, 0.7)
-                dy = random.uniform(-0.7, 0.7)
-                # Перемещаем персонажа, учитывая границы и столкновения со стенами
-                person.move(dx * person.vel, dy * person.vel)
-                person.update()
-                person.draw()
-
-                main_i += 1
-            else:
-                person.update()
-                person.draw()
-                main_i += 1
-
-            # Ставим стены по нажатию ЛКМ
-        if pygame.mouse.get_pressed()[0]:
-            x, y = pygame.mouse.get_pos()
-            walls.append(pygame.Rect(x - 5, y - 5, 10, 10))
-
-            # Рисуем стены
-        for wall in walls:
-            pygame.draw.rect(win, BLACK, wall)
-
-        pygame.display.update()
-
-        clock.tick(80)
+        # Движение персонажей
+    for person in people:
+        if person.is_dead != True:
+            #print(person)
+            # Присваиваем случайное (плавное) перемещение
+            dx = random.uniform(-0.7, 0.7)
+            dy = random.uniform(-0.7, 0.7)
+            # Перемещаем персонажа, учитывая границы и столкновения со стенами
+            person.move(dx * person.vel, dy * person.vel)
+            person.update()
+            person.draw()
+            main_i += 1
+        else:
+            person.update()
+            person.draw()
+            main_i += 1
+        # Ставим стены по нажатию ЛКМ
+    if pygame.mouse.get_pressed()[0]:
+        x, y = pygame.mouse.get_pos()
+        walls.append(pygame.Rect(x - 5, y - 5, 10, 10))
+        # Рисуем стены
+    for wall in walls:
+        pygame.draw.rect(win, BLACK, wall)
+    pygame.display.update()
+    clock.tick(60)
 pygame.quit()
