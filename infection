@@ -24,6 +24,7 @@ tik = []
 death_threat = 0.001
 probability_of_recovery = 0.1
 recovery_steps = 100
+probability_of_disease = 0.5
 # Класс для персонажей
 class Person:
     def __init__(self, x, y, infected=False):
@@ -31,7 +32,7 @@ class Person:
         self.y = y
         self.color = RED if infected else GREEN
         self.vel = 10
-        self.infected_steps = 0  # Количество шагов с момента заражения
+        self.infected_steps = 0
         self.is_dead = False
 
     def move(self, dx, dy):
@@ -96,11 +97,13 @@ def infect(people, walls):
                             wall_rect = pygame.Rect(wall)
                             if line.colliderect(wall_rect):
                                 break
-                        else:  # Этот блок выполнится, если стена не пересекает линию между персонажами
-                            # Заражаем персонажа
-                            p2.color = RED
-                            p2.infected_steps = 0
-
+                            else:  # Этот блок выполнится,  если стена не пересекает линию между персонажами
+                                # Заражаем персонажа
+                                if round(random.random(), 2) <= probability_of_disease:
+                                    p2.color = RED
+                                    p2.infected_steps = 0
+                                else:
+                                    break
 # Основной цикл программы
 clock = pygame.time.Clock()
 running = True
