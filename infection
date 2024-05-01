@@ -97,13 +97,13 @@ def infect(people, walls):
                             wall_rect = pygame.Rect(wall)
                             if line.colliderect(wall_rect):
                                 break
-                            else:  # Этот блок выполнится,  если стена не пересекает линию между персонажами
-                                # Заражаем персонажа
-                                if round(random.random(), 2) <= probability_of_disease:
-                                    p2.color = RED
-                                    p2.infected_steps = 0
-                                else:
-                                    break
+                        else:  # Этот блок выполнится,  если стена не пересекает линию между персонажами
+                            # Заражаем персонажа
+                            if round(random.random(), 2) <= probability_of_disease:
+                                p2.color = RED
+                                p2.infected_steps = 0
+                            else:
+                                break
 # Основной цикл программы
 clock = pygame.time.Clock()
 running = True
