@@ -21,11 +21,13 @@ infected = False
 people = []
 walls = []
 tik = []
-death_threat = 0.001
+death_threat = 0.0001
 probability_of_recovery = 0.1
-recovery_steps = 100
+recovery_steps = 1000000
 probability_of_disease = 0.5
 # Класс для персонажей
+
+
 class Person:
     def __init__(self, x, y, infected=False):
         self.x = x
@@ -75,35 +77,38 @@ class Person:
             if random.random() < death_threat:
                 self.is_dead = True
 
+
 # Функция для вычисления расстояния между двумя точками
 def distance(p1, p2):
     return math.sqrt((p2[0] - p1[0]) ** 2 + (p2[1] - p1[1]) ** 2)
 
+
 # Радиус заражения (можете настроить это значение по своему усмотрению)
 INFECTION_RADIUS = 70
+
 
 # Функция для заражения персонажей, находящихся в пределах радиуса заражения
 def infect(people, walls):
     for p1 in people:
         if p1.color == RED and not p1.is_dead:  # Проверяем только зараженных персонажей, которые не умерли
             for p2 in people:
-                if p1 != p2 and p2.color == GREEN and not p2.is_dead:  # Проверяем только здоровых персонажей, которые не умерли
+                collision = False
+                if p1 != p2 and p2.color == GREEN and not p2.is_dead:  #Проверяем только здоровых персонажей, которые не умерли
                     # Проверяем, находятся ли персонажи в пределах радиуса заражения
                     if distance((p1.x, p1.y), (p2.x, p2.y)) < INFECTION_RADIUS:
                         # Создаем отрезок между персонажами
-                        line = pygame.Rect(p1.x, p1.y, p2.x - p1.x, p2.y - p1.y)
+
                         # Проверяем пересечение этого отрезка со всеми стенами
                         for wall in walls:
                             wall_rect = pygame.Rect(wall)
-                            if line.colliderect(wall_rect):
+                            if wall_rect.clipline(p1.x,p1.y,p2.x,p2.y):
+                                collision = True
                                 break
-                        else:  # Этот блок выполнится,  если стена не пересекает линию между персонажами
-                            # Заражаем персонажа
-                            if round(random.random(), 2) <= probability_of_disease:
-                                p2.color = RED
-                                p2.infected_steps = 0
-                            else:
-                                break
+                        if round(random.random(), 2) <= probability_of_disease and collision == False:
+                            p2.color = RED
+                            p2.infected_steps = 0
+
+
 # Основной цикл программы
 clock = pygame.time.Clock()
 running = True
@@ -149,5 +154,6 @@ while running:
     for wall in walls:
         pygame.draw.rect(win, BLACK, wall)
     pygame.display.update()
+
     clock.tick(60)
 pygame.quit()
