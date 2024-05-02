@@ -23,8 +23,8 @@ walls = []
 tik = []
 death_threat = 0.0001
 probability_of_recovery = 0.1
-recovery_steps = 1000000
-probability_of_disease = 0.5
+recovery_steps = 1500
+probability_of_disease = 0.01
 # Класс для персонажей
 
 
