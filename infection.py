@@ -1,7 +1,7 @@
 import pygame
 import random
 import math
-
+import time
 # Инициализация Pygame
 pygame.init()
 
@@ -12,7 +12,7 @@ GREEN = (0, 255, 0)
 BLACK = (0, 0, 0)
 
 # Параметры окна
-WIDTH, HEIGHT = 800, 600
+WIDTH, HEIGHT =750, 750 #1440, 700
 win = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Симуляция заражения")
 
@@ -21,13 +21,20 @@ infected = False
 people = []
 walls = []
 tik = []
+count_ill = 0
 death_threat = 0.0001
 probability_of_recovery = 0.1
 recovery_steps = 1500
 probability_of_disease = 0.01
 # Класс для персонажей
-
-
+count = pygame.font.Font(None, 20)
+# Радиус заражения (можете настроить это значение по своему усмотрению)
+INFECTION_RADIUS = 70
+switch = True
+def ill_pers():
+    people.append(Person(x, y, True))
+    global count_ill
+    count_ill += 1
 class Person:
     def __init__(self, x, y, infected=False):
         self.x = x
@@ -72,19 +79,20 @@ class Person:
             if self.infected_steps >= recovery_steps and random.random() < probability_of_recovery:
                 self.color = GREEN
                 self.infected_steps = 0
+                global count_ill
+                count_ill -= 1
 
             # Проверяем вероятность смерти (0,1% на каждом шаге)
             if random.random() < death_threat:
                 self.is_dead = True
-
+                count_ill -= 1
 
 # Функция для вычисления расстояния между двумя точками
 def distance(p1, p2):
     return math.sqrt((p2[0] - p1[0]) ** 2 + (p2[1] - p1[1]) ** 2)
 
 
-# Радиус заражения (можете настроить это значение по своему усмотрению)
-INFECTION_RADIUS = 70
+
 
 
 # Функция для заражения персонажей, находящихся в пределах радиуса заражения
@@ -107,6 +115,8 @@ def infect(people, walls):
                         if round(random.random(), 2) <= probability_of_disease and collision == False:
                             p2.color = RED
                             p2.infected_steps = 0
+                            global count_ill
+                            count_ill += 1
 
 
 # Основной цикл программы
@@ -115,23 +125,63 @@ running = True
 main_i = 0
 while running:
     # Проверяем события
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_TAB:
+                if switch == False:
+                    pygame.draw.rect(win, RED, (20, 20, 100, 75))
+
+                    pygame.display.update()
+                    switch = True
+                elif switch == True:
+                    switch = False
+                print(switch)
+
+        #if event.type == pygame.KEYDOWN:
+            # if event.key == pygame.K_SPACE:
+            #     press = True
+            #     while press:
+            #         if event.type == pygame.KEYUP:
+            #             press = False
+            #         time.sleep(0.1)
+
     # Расставляем персонажей по клику ПКМ
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 3:
             x, y = pygame.mouse.get_pos()
             tik.append(main_i)
-            if len(people) == 0:
-                people.append(Person(x, y, True))
+            if switch == True:
+                    ill_pers()
+
             else:
                 people.append(Person(x, y))
+
     if running:  # Проверяем, закрыто ли окно
         win.fill(WHITE)
-    infect(people, walls)
+    if switch == False:
+        pygame.draw.rect(win, GREEN, (720,0,750, 30))
+    if switch == True:
+        pygame.draw.rect(win, RED, (720,0,750, 30))
+    mode = pygame.font.Font( None, 20)
+    mode = mode.render('Mode:' , True, BLACK)
 
+    i_ill = count.render('Sick: '+str(count_ill), True, RED)
+    count_persson = count.render('Total: '+str(len(people)), True, BLACK)
+    count_healhy = count.render('Healthy: '+str(len(people)-count_ill), True, GREEN)
+
+    win.blit(count_persson,(10,10))
+    win.blit(i_ill, (10,20))
+    win.blit(count_healhy, (10, 30))
+    win.blit(mode, (678, 8))
+
+
+
+    infect(people, walls)
         # Движение персонажей
     for person in people:
+
         if person.is_dead != True:
             #print(person)
             # Присваиваем случайное (плавное) перемещение
@@ -157,3 +207,13 @@ while running:
 
     clock.tick(60)
 pygame.quit()
+
+
+
+
+
+
+
+
+
+
