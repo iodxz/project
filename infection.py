@@ -19,6 +19,7 @@ pygame.display.set_caption("Симуляция заражения")
 # Персонажи и стены
 infected = False
 people = []
+ill = []
 walls = []
 tik = []
 count_ill = 0
@@ -36,7 +37,6 @@ INFECTION_RADIUS = 70
 switch = True
 def ill_pers():
     people.append(Person(x, y, True))
-
 
 class Person:
     def __init__(self, x, y, infected=False):
@@ -83,19 +83,13 @@ class Person:
                 self.color = GREEN
                 self.infected_steps = 0
 
-
             # Проверяем вероятность смерти (0,1% на каждом шаге)
             if random.random() < death_threat:
                 self.is_dead = True
 
-
 # Функция для вычисления расстояния между двумя точками
 def distance(p1, p2):
     return math.sqrt((p2[0] - p1[0]) ** 2 + (p2[1] - p1[1]) ** 2)
-
-
-
-
 
 # Функция для заражения персонажей, находящихся в пределах радиуса заражения
 def infect(people, walls):
@@ -117,8 +111,6 @@ def infect(people, walls):
                         if round(random.random(), 2) <= probability_of_disease and collision == False:
                             p2.color = RED
                             p2.infected_steps = 0
-
-
 
 # Основной цикл программы
 clock = pygame.time.Clock()
@@ -168,12 +160,10 @@ while running:
     mode = pygame.font.Font( None, 20)
     mode = mode.render('Mode:' , True, BLACK)
 
-
     count_persson = count.render('Total: '+str(len(people)), True, BLACK)
-    ill = count.render('Sick: '+str(int(count_ill)-count_death), True, RED)
-
+    ill = count.render('Sick: '+str(int(count_ill)), True, RED)
     healhy = count.render('Healthy: '+str(count_health), True, GREEN)
-    death = count.render('Death: '+str(count_death), True, False)
+    death = count.render('Dead: '+str(count_death), True, False)
     win.blit(count_persson,(10,10))
     win.blit(ill, (10,25))
     win.blit(healhy, (10, 40))
@@ -181,24 +171,23 @@ while running:
 
     win.blit(mode, (678, 8))
 
-    
-
-
     infect(people, walls)
+    n_ill = 0
+    n_dead = 0
+    n_healthy = 0
         # Движение персонажей
-    i_ill = 0
-    i_death = 0
-    i_health = 0
     for person in people:
-        if person.color == RED:
-            i_ill += 1
-        if person.is_dead == True:
-            i_death += 1
-        if person.color == GREEN:
-            i_health += 1
-        count_health = i_health
-        count_ill = i_ill
-        count_death = i_death
+        if not person.is_dead:
+            if person.infected_steps!=0:
+                n_ill += 1
+            if person.infected_steps==0:
+                n_healthy += 1
+        else:
+            n_dead += 1
+
+        count_death = n_dead
+        count_ill = n_ill
+        count_health = n_healthy
         if person.is_dead != True:
             #print(person)
             # Присваиваем случайное (плавное) перемещение
@@ -215,6 +204,7 @@ while running:
             person.draw()
 
             main_i += 1
+
         # Ставим стены по нажатию ЛКМ
     if pygame.mouse.get_pressed()[0]:
         x, y = pygame.mouse.get_pos()
