@@ -10,10 +10,11 @@ WHITE = (255, 255, 255)
 RED = (255, 0, 0)
 GREEN = (0, 255, 0)
 BLACK = (0, 0, 0)
-
+GRAY = (128,128,128)
 # Параметры окна
-WIDTH, HEIGHT =750, 750 #1440, 700
+WIDTH, HEIGHT =750, 780 #1440, 700
 win = pygame.display.set_mode((WIDTH, HEIGHT))
+
 pygame.display.set_caption("Симуляция заражения")
 
 # Персонажи и стены
@@ -25,18 +26,48 @@ tik = []
 count_ill = 0
 count_death = 0
 count_health = 0
-
+size_edit_field = 30
 death_threat = 0.0001
-probability_of_recovery = 0.1
+probability_of_recovery = 0.01
 recovery_steps = 1500
 probability_of_disease = 0.01
 # Класс для персонажей
 count = pygame.font.Font(None, 25)
+edit = pygame.font.Font(None, 20)
 # Радиус заражения (можете настроить это значение по своему усмотрению)
 INFECTION_RADIUS = 70
 switch = True
 def ill_pers():
     people.append(Person(x, y, True))
+class Button:
+    def __init__(self, x, y, width, height, text, color, text_color):
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+        self.text = text
+        self.color = color
+        self.text_color = text_color
+
+    def draw(self, screen):
+        # Рисуем прямоугольник кнопки
+        pygame.draw.rect(screen, self.color, (self.x, self.y, self.width, self.height))
+
+        # Отображаем текст на кнопке
+        font = pygame.font.SysFont(None, 30)
+        text_surface = font.render(self.text, True, self.text_color)
+        text_rect = text_surface.get_rect(center=((self.x + self.width // 2), (self.y + self.height // 2)))
+        screen.blit(text_surface, text_rect)
+
+    def is_clicked(self, pos):
+        # Проверяем, была ли нажата кнопка
+        if self.x < pos[0] < self.x + self.width and self.y < pos[1] < self.y + self.height:
+            return True
+        else:
+            return False
+
+
+# Создание кнопок
 
 class Person:
     def __init__(self, x, y, infected=False):
@@ -53,7 +84,7 @@ class Person:
             return
         if self.x + dx < 0 or self.x + dx > WIDTH:
             dx = -dx
-        if self.y + dy < 0 or self.y + dy > HEIGHT:
+        if self.y + dy < 0 or self.y + dy > (HEIGHT-size_edit_field):
             dy = -dy
         # Обновляем положение шара
         self.x += dx
@@ -116,10 +147,27 @@ def infect(people, walls):
 clock = pygame.time.Clock()
 running = True
 main_i = 0
+# Определение кнопок
+radius_down = Button(10, 750, 30, 30, "-", GRAY, BLACK)
+radius_up = Button(110, 750, 30, 30, "+", GRAY, BLACK)
+
+probability_of_disease_down = Button(160, 750, 30, 30, "-", GRAY, BLACK)
+probability_of_disease_up = Button(260, 750, 30, 30, "+", GRAY, BLACK)
+
+recovery_steps_down = Button(310, 750, 30, 30, "-", GRAY, BLACK)
+recovery_steps_up = Button(410, 750, 30, 30, "+", GRAY, BLACK)
+
+probability_of_recovery_down = Button(460, 750, 30, 30, "-", GRAY, BLACK)
+probability_of_recovery_up = Button(560, 750, 30, 30, "+", GRAY, BLACK)
+
+death_threat_down = Button(610, 750, 30, 30, "-", GRAY, BLACK)
+death_threat_up = Button(710, 750, 30, 30, "+", GRAY, BLACK)
 while running:
     # Проверяем события
     #print(count_death)
+
     for event in pygame.event.get():
+
         if event.type == pygame.QUIT:
             running = False
         if event.type == pygame.KEYDOWN:
@@ -133,6 +181,32 @@ while running:
                     switch = False
                 print(switch)
 
+
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            # Получаем позицию курсора
+            pos = pygame.mouse.get_pos()
+
+            # Проверяем, была ли нажата кнопка
+            if radius_up.is_clicked(pos):
+                INFECTION_RADIUS+=1
+            if radius_down.is_clicked(pos) and INFECTION_RADIUS > 0:
+                INFECTION_RADIUS-=1
+            if probability_of_disease_up.is_clicked(pos) and probability_of_disease <= 1:
+                probability_of_disease += 0.01
+            if probability_of_disease_down.is_clicked(pos) and probability_of_disease > 0:
+                probability_of_disease -= 0.01
+            if recovery_steps_down.is_clicked(pos):
+                recovery_steps -= 100
+            if recovery_steps_up.is_clicked(pos):
+                recovery_steps += 100
+            if probability_of_recovery_up.is_clicked(pos) and probability_of_recovery <= 1:
+                probability_of_recovery += 0.01
+            if probability_of_recovery_down.is_clicked(pos) and probability_of_recovery > 0:
+                probability_of_recovery -= 0.01
+            if death_threat_up.is_clicked(pos) and death_threat<= 1:
+                death_threat += 0.0001
+            if death_threat_down.is_clicked(pos) and death_threat > 0:
+                death_threat -= 0.0001
         #if event.type == pygame.KEYDOWN:
             # if event.key == pygame.K_SPACE:
             #     press = True
@@ -145,6 +219,7 @@ while running:
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 3:
             x, y = pygame.mouse.get_pos()
             tik.append(main_i)
+
             if switch == True:
                     ill_pers()
 
@@ -159,7 +234,18 @@ while running:
         pygame.draw.rect(win, RED, (720,0,750, 30))
     mode = pygame.font.Font( None, 20)
     mode = mode.render('Mode:' , True, BLACK)
-
+    pygame.draw.line(win,BLACK,(0,750), (750, 750), 1)
+    #Отрисовка кнопка
+    radius_up.draw(win)
+    radius_down.draw(win)
+    probability_of_disease_down.draw(win)
+    probability_of_disease_up.draw(win)
+    recovery_steps_down.draw(win)
+    recovery_steps_up.draw(win)
+    probability_of_recovery_down.draw(win)
+    probability_of_recovery_up.draw(win)
+    death_threat_down.draw(win)
+    death_threat_up.draw(win)
     count_persson = count.render('Total: '+str(len(people)), True, BLACK)
     ill = count.render('Sick: '+str(int(count_ill)), True, RED)
     healhy = count.render('Healthy: '+str(count_health), True, GREEN)
@@ -169,8 +255,34 @@ while running:
     win.blit(healhy, (10, 40))
     win.blit(death, (10, 55))
 
-    win.blit(mode, (678, 8))
+    radius_text = edit.render('radius', True, BLACK)
+    radius_n = edit.render(str(INFECTION_RADIUS), True, BLACK)
+    probability_of_disease_text = edit.render('Prob of D', True, BLACK)
+    probability_of_disease_n = edit.render(str(round(probability_of_disease, 2)), True, BLACK)
+    recovery_steps_text = edit.render('Steps of R', True, BLACK)
+    recovery_steps_n = edit.render(str(recovery_steps), True, BLACK)
+    probability_of_recovery_text = edit.render('Prob of R', True, BLACK)
+    probability_of_recovery_n = edit.render(str(round(probability_of_recovery, 2)), True, BLACK)
 
+    death_threat_text = edit.render('prob death', True, BLACK)
+    death_threat_n = edit.render(str(round(death_threat, 4)), True, BLACK)
+    win.blit(mode, (678, 8))
+    # информация о редактировании параметров
+    win.blit(radius_text,(50, 750))
+    win.blit(radius_n,(65, 765))
+    win.blit(probability_of_disease_text,(195, 750))
+    win.blit(probability_of_disease_n, (210, 765))
+    win.blit(recovery_steps_text, (342, 750))
+    win.blit(recovery_steps_n, (360, 765))
+    win.blit(probability_of_recovery_text, (495, 750))
+    win.blit(probability_of_recovery_n, (515, 765))
+    win.blit(death_threat_text, (640, 750))
+    win.blit(death_threat_n, (665, 765))
+
+
+
+    for i in range(5):
+        pygame.draw.circle(win, BLACK, (i * 150, 770), 3)
     infect(people, walls)
     n_ill = 0
     n_dead = 0
@@ -208,7 +320,8 @@ while running:
         # Ставим стены по нажатию ЛКМ
     if pygame.mouse.get_pressed()[0]:
         x, y = pygame.mouse.get_pos()
-        walls.append(pygame.Rect(x - 5, y - 5, 10, 10))
+        if y <750:
+            walls.append(pygame.Rect(x - 5, y - 5, 10, 10))
         # Рисуем стены
     for wall in walls:
         pygame.draw.rect(win, BLACK, wall)
