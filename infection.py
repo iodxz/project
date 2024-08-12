@@ -1,7 +1,9 @@
 import pygame
 import random
 import math
-import time
+
+
+
 # Инициализация Pygame
 pygame.init()
 
@@ -54,7 +56,7 @@ class Button:
         pygame.draw.rect(screen, self.color, (self.x, self.y, self.width, self.height))
 
         # Отображаем текст на кнопке
-        font = pygame.font.SysFont(None, 30)
+        font = pygame.font.SysFont('umeminchos3', 30)
         text_surface = font.render(self.text, True, self.text_color)
         text_rect = text_surface.get_rect(center=((self.x + self.width // 2), (self.y + self.height // 2)))
         screen.blit(text_surface, text_rect)
@@ -98,10 +100,11 @@ class Person:
         return False
 
     def draw(self):
-        if self.is_dead:
-            pygame.draw.circle(win, BLACK, (self.x, self.y), 5)
-        else:
-            pygame.draw.circle(win, self.color, (self.x, self.y), 5)
+
+            if self.is_dead:
+                pygame.draw.circle(win, BLACK, (self.x, self.y), 5)
+            else:
+                pygame.draw.circle(win, self.color, (self.x, self.y), 5)
 
     def update(self):
         # Если персонаж заражен
@@ -185,28 +188,39 @@ while running:
         if event.type == pygame.MOUSEBUTTONDOWN:
             # Получаем позицию курсора
             pos = pygame.mouse.get_pos()
-
+            if event.button == 1:
+                n_edit_radius = 5
+                n_edit_probability_of_disease = 0.01
+                n_edit_recovery_steps = 100
+                n_edit_probability_of_recovery = 0.01
+                n_edit_death_threat = 0.0001
+            if event.button == 3:
+                n_edit_radius = 50
+                n_edit_probability_of_disease = 0.1
+                n_edit_recovery_steps = 1000
+                n_edit_probability_of_recovery = 0.1
+                n_edit_death_threat = 0.005
             # Проверяем, была ли нажата кнопка
             if radius_up.is_clicked(pos):
-                INFECTION_RADIUS+=1
-            if radius_down.is_clicked(pos) and INFECTION_RADIUS > 0:
-                INFECTION_RADIUS-=1
-            if probability_of_disease_up.is_clicked(pos) and probability_of_disease <= 1:
-                probability_of_disease += 0.01
-            if probability_of_disease_down.is_clicked(pos) and probability_of_disease > 0:
-                probability_of_disease -= 0.01
-            if recovery_steps_down.is_clicked(pos):
-                recovery_steps -= 100
+                INFECTION_RADIUS += n_edit_radius
+            if radius_down.is_clicked(pos) and INFECTION_RADIUS - n_edit_radius >= 0:
+                INFECTION_RADIUS -= n_edit_radius
+            if probability_of_disease_up.is_clicked(pos) and probability_of_disease + n_edit_probability_of_disease <= 1:
+                probability_of_disease += n_edit_probability_of_disease
+            if probability_of_disease_down.is_clicked(pos) and probability_of_disease - n_edit_probability_of_disease >= 0:
+                probability_of_disease -= n_edit_probability_of_disease
+            if recovery_steps_down.is_clicked(pos) and recovery_steps - n_edit_recovery_steps >= 0:
+                recovery_steps -= n_edit_recovery_steps
             if recovery_steps_up.is_clicked(pos):
-                recovery_steps += 100
-            if probability_of_recovery_up.is_clicked(pos) and probability_of_recovery <= 1:
-                probability_of_recovery += 0.01
-            if probability_of_recovery_down.is_clicked(pos) and probability_of_recovery > 0:
-                probability_of_recovery -= 0.01
-            if death_threat_up.is_clicked(pos) and death_threat<= 1:
-                death_threat += 0.0001
-            if death_threat_down.is_clicked(pos) and death_threat > 0:
-                death_threat -= 0.0001
+                recovery_steps += n_edit_recovery_steps
+            if probability_of_recovery_up.is_clicked(pos) and probability_of_recovery + n_edit_probability_of_recovery <= 1:
+                probability_of_recovery += n_edit_probability_of_recovery
+            if probability_of_recovery_down.is_clicked(pos) and probability_of_recovery - n_edit_probability_of_recovery >= 0:
+                probability_of_recovery -= n_edit_probability_of_recovery
+            if death_threat_up.is_clicked(pos) and death_threat + n_edit_death_threat <= 1:
+                death_threat += n_edit_death_threat
+            if death_threat_down.is_clicked(pos) and death_threat + n_edit_death_threat > 0:
+                death_threat -= n_edit_death_threat
         #if event.type == pygame.KEYDOWN:
             # if event.key == pygame.K_SPACE:
             #     press = True
@@ -218,13 +232,13 @@ while running:
     # Расставляем персонажей по клику ПКМ
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 3:
             x, y = pygame.mouse.get_pos()
-            tik.append(main_i)
+            if y <750:
+                tik.append(main_i)
+                if switch == True:
+                        ill_pers()
 
-            if switch == True:
-                    ill_pers()
-
-            else:
-                people.append(Person(x, y))
+                else:
+                    people.append(Person(x, y))
 
     if running:  # Проверяем, закрыто ли окно
         win.fill(WHITE)
