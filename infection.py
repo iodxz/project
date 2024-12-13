@@ -69,7 +69,6 @@ class Button:
             return False
 
 
-# Создание кнопок
 
 class Person:
     def __init__(self, x, y, infected=False):
@@ -104,8 +103,11 @@ class Person:
             if self.is_dead:
                 pygame.draw.circle(win, BLACK, (self.x, self.y), 5)
             else:
-                pygame.draw.circle(win, self.color, (self.x, self.y), 5)
-
+                if self.color == RED:
+                    pygame.draw.circle(win, (200, 200, 210 ), (self.x, self.y), INFECTION_RADIUS, 1)
+                    pygame.draw.circle(win, self.color, (self.x, self.y), 5)
+                else:
+                    pygame.draw.circle(win, self.color, (self.x, self.y), 5)
     def update(self):
         # Если персонаж заражен
         if self.color == RED:
@@ -167,7 +169,6 @@ death_threat_down = Button(610, 750, 30, 30, "-", GRAY, BLACK)
 death_threat_up = Button(710, 750, 30, 30, "+", GRAY, BLACK)
 while running:
     # Проверяем события
-    #print(count_death)
 
     for event in pygame.event.get():
 
@@ -182,7 +183,7 @@ while running:
                     switch = True
                 elif switch == True:
                     switch = False
-                print(switch)
+
 
 
         if event.type == pygame.MOUSEBUTTONDOWN:
@@ -295,8 +296,7 @@ while running:
 
 
 
-    for i in range(5):
-        pygame.draw.circle(win, BLACK, (i * 150, 770), 3)
+
     infect(people, walls)
     n_ill = 0
     n_dead = 0
@@ -335,6 +335,7 @@ while running:
     if pygame.mouse.get_pressed()[0]:
         x, y = pygame.mouse.get_pos()
         if y <750:
+
             walls.append(pygame.Rect(x - 5, y - 5, 10, 10))
         # Рисуем стены
     for wall in walls:
@@ -343,13 +344,3 @@ while running:
 
     clock.tick(60)
 pygame.quit()
-
-
-
-
-
-
-
-
-
-
