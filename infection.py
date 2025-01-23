@@ -1,7 +1,7 @@
 import pygame
 import random
 import math
-
+# import time
 
 
 # Инициализация Pygame
@@ -184,8 +184,6 @@ while running:
                 elif switch == True:
                     switch = False
 
-
-
         if event.type == pygame.MOUSEBUTTONDOWN:
             # Получаем позицию курсора
             pos = pygame.mouse.get_pos()
@@ -220,15 +218,15 @@ while running:
                 probability_of_recovery -= n_edit_probability_of_recovery
             if death_threat_up.is_clicked(pos) and death_threat + n_edit_death_threat <= 1:
                 death_threat += n_edit_death_threat
-            if death_threat_down.is_clicked(pos) and death_threat + n_edit_death_threat > 0:
+            if death_threat_down.is_clicked(pos) and death_threat + n_edit_death_threat >= 0:
                 death_threat -= n_edit_death_threat
-        #if event.type == pygame.KEYDOWN:
-            # if event.key == pygame.K_SPACE:
-            #     press = True
-            #     while press:
-            #         if event.type == pygame.KEYUP:
-            #             press = False
-            #         time.sleep(0.1)
+        # if event.type == pygame.KEYDOWN:
+        #     if event.key == pygame.K_SPACE:
+        #          press = True
+        #          while press:
+        #              if event.type == pygame.KEYUP:
+        #                  press = False
+        #                  time.sleep(0.1)
 
     # Расставляем персонажей по клику ПКМ
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 3:
