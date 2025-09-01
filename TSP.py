@@ -9,7 +9,7 @@ line_color = (255, 255, 0)
 point_rad = 6
 points = []
 road_width = 2
-limit_dist = 30
+limit_dist = 50
 def draw_point(x, y):
 	p = pg.draw.circle(root, circle_color, (x, y), point_rad)
 	points.append([p.x, p.y])
@@ -39,15 +39,16 @@ def draw_lines():
 			pg.draw.line(root, line_color, (xds, yds), (xde, yde), road_width)
 			in_road.append(point_to_build)
 			out_road.remove(point_to_build)
-def cheak_point(xp, yp):
-	if len(points) <= 1:
+def cheak_point(x, y):
+	if len(points) == 0:
 		return True
 	else:
 		for p in points:
 			px = p[0]
 			py = p[-1]
-			if abs(xp - px) < limit_dist or abs(yp - py) < limit_dist:
-
+			d = ((x - px) ** 2 + (y - py) ** 2) ** 0.5
+			if d < limit_dist:
+				print('близко', d)
 				return False
 		return True
 setup_end = False
@@ -70,3 +71,4 @@ while run:
 
 		pg.display.update()
 pg.quit()
+
